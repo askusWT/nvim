@@ -1,0 +1,99 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1772956932,
+        "narHash": "sha256-M0yS4AafhKxPPmOHGqIV0iKxgNO8bHDWdl1kOwGBwRY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "608d0cadfed240589a7eea422407a547ad626a14",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "plugins-catppuccin": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772881394,
+        "narHash": "sha256-LdTFG+XR49yIvXM7Lqod+ROnXGwrga5YAceZnZj+GxY=",
+        "owner": "catppuccin",
+        "repo": "nvim",
+        "rev": "12c004cde3f36cb1d57242f1e6aac46b09a0e5b4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "catppuccin",
+        "repo": "nvim",
+        "type": "github"
+      }
+    },
+    "plugins-lze": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772949858,
+        "narHash": "sha256-skLhmn/MvxOZbrBiceF/xiLRRmmEs6ZQS2sGrBrUyLU=",
+        "owner": "BirdeeHub",
+        "repo": "lze",
+        "rev": "a3ba1a2d469d4ab26acb629aba8c7d70a6cbe558",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BirdeeHub",
+        "repo": "lze",
+        "type": "github"
+      }
+    },
+    "plugins-lzextras": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1772949841,
+        "narHash": "sha256-MQ1h2R5axM3u6mLNTDzXF/40o8+U0JOWb48UTQO9jfc=",
+        "owner": "BirdeeHub",
+        "repo": "lzextras",
+        "rev": "a6ac9a7bee380881af2dfbfd238ccb1697d677d7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BirdeeHub",
+        "repo": "lzextras",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "plugins-catppuccin": "plugins-catppuccin",
+        "plugins-lze": "plugins-lze",
+        "plugins-lzextras": "plugins-lzextras",
+        "wrappers": "wrappers"
+      }
+    },
+    "wrappers": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773169062,
+        "narHash": "sha256-yPjMc8TOHs26aPsb2niFiY6gKEUe2OEE3QVbY+zmSYY=",
+        "owner": "BirdeeHub",
+        "repo": "nix-wrapper-modules",
+        "rev": "07f3d4bfbc9af7b121c5f19aaa8d80e2a6707913",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BirdeeHub",
+        "repo": "nix-wrapper-modules",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
