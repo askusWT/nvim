@@ -42,7 +42,7 @@ inputs:
     type = lib.types.str;
     default = "onedark_dark";
   };
-  config.settings.colorscheme = "catppuccin"; # <- just demonstrating that it is an option
+  config.settings.colorscheme = "catppuccin"; # <- vim colorscheme name, passed to vim.cmd.colorscheme
   # and grab it in lua with `require(vim.g.nix_info_plugin_name)("onedark_dark", "settings", "colorscheme") == "catppuccin"`
   config.specs.colorscheme = {
     lazy = true;
@@ -54,8 +54,7 @@ inputs:
         "onedark" = onedarkpro-nvim;
         "onelight" = onedarkpro-nvim;
         "moonfly" = vim-moonfly-colors;
-        # THIS CODE IS UNVERIFIED
-        "catppuccin" = config.nvim-lib.neovimPlugins.catppuccin;
+        "catppuccin" = catppuccin-nvim; # key = vim colorscheme name, value = nixpkgs package
       }
     );
   };
@@ -110,10 +109,22 @@ inputs:
     lazy = true;
     data = with pkgs.vimPlugins; [
       lazydev-nvim
+      csvview-nvim
     ];
     extraPackages = with pkgs; [
       lua-language-server
       stylua
+    ];
+  };
+
+  config.specs.linters = {
+    data = null;
+    extraPackages = with pkgs; [
+      shellcheck
+      eslint
+      yamllint
+      ruff
+      # jsonlint not in nixpkgs; JSON covered by jsonls LSP
     ];
   };
 
@@ -124,7 +135,6 @@ inputs:
     # note we didn't have to specify the `lze` specs name, because it was a top level spec
     extraPackages = with pkgs; [
       lazygit
-      tree-sitter
     ];
     # this `lazy = true` definition will transfer to specs in the contained DAL, if there is one.
     # This is because the definition of lazy in `config.specMods` checks `parentSpec.lazy or false`
@@ -168,6 +178,10 @@ inputs:
       flash-nvim
       mini-nvim
       opencode-nvim
+      # THIS CODE IS UNVERIFIED
+      fine-cmdline-nvim
+      nui-nvim
+      dressing-nvim
     ];
   };
 

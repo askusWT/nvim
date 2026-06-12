@@ -91,17 +91,18 @@ nixInfo.lze.h.lsp.set_ft_fallback(function(name)
   end
 end)
 
--- Crostini: DISPLAY=:0 is set (sommelier), so xclip works for both directions.
--- OSC 52 paste is not supported by Zellij, so xclip is the reliable choice.
+-- Crostini clipboard: OSC 52 write works via Zellij; read does not (Zellij unimplemented).
+-- xclip does NOT reach ChromeOS clipboard (sommelier doesn't bridge it).
+-- To paste FROM ChromeOS into nvim: use Ctrl+Shift+V in insert mode (terminal paste).
 vim.g.clipboard = {
-  name = 'xclip',
+  name = 'OSC52',
   copy = {
-    ['+'] = { 'xclip', '-selection', 'clipboard' },
-    ['*'] = { 'xclip', '-selection', 'primary' },
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
   },
   paste = {
-    ['+'] = { 'xclip', '-selection', 'clipboard', '-o' },
-    ['*'] = { 'xclip', '-selection', 'primary', '-o' },
+    ['+'] = function() return {} end,
+    ['*'] = function() return {} end,
   },
 }
 
@@ -142,9 +143,9 @@ vim.o.mouse = 'a'
 -- vim.o.smarttab = true
 vim.opt.cpoptions:append('I')
 vim.o.expandtab = true
--- vim.o.smartindent = true
--- vim.o.autoindent = true
--- vim.o.tabstop = 4
+vim.o.smartindent = true
+vim.o.autoindent = true
+vim.o.tabstop = 2
 -- vim.o.softtabstop = 4
 -- vim.o.shiftwidth = 4
 
@@ -164,13 +165,19 @@ vim.wo.relativenumber = true
 
 -- Decrease update time
 vim.o.updatetime = 250
-vim.o.timeoutlen = 300
+vim.o.timeoutlen = 500
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menu,preview,noselect'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
+
+vim.o.splitright = true
+vim.o.splitbelow = true
+vim.o.cursorline = true
+vim.o.shiftwidth = 2
+vim.o.wrap = false
 
 -- [[ Disable auto comment on enter ]]
 -- See :help formatoptions
@@ -215,12 +222,20 @@ vim.keymap.set("n", "<leader><leader>d", "<cmd>bdelete<CR>", { desc = 'delete bu
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
+-- Window navigation
+vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus left' })
+vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus down' })
+vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus up' })
+vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus right' })
+
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
+vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Prev diagnostic' })
 
--- Sync clipboard between OS and Neovim.
---  See `:help 'clipboard'`
+-- unnamedplus so yank triggers the OSC52 copy provider above.
+-- Paste from ChromeOS into nvim: Ctrl+Shift+V in insert mode (not `p`).
 vim.o.clipboard = 'unnamedplus'
 
 -- Explicit clipboard keybindings (still useful for visual mode etc.)
@@ -268,9 +283,8 @@ nixInfo.lze.load {
     auto_enable = true,
     colorscheme = "moonfly",
   },
-  -- THIS CODE IS UNVERIFIED
   {
-    "catppuccin",
+    "catppuccin-nvim",
     auto_enable = true,
     colorscheme = { "catppuccin", "catppuccin-latte", "catppuccin-frappe",
                     "catppuccin-macchiato", "catppuccin-mocha" },
@@ -291,6 +305,11 @@ nixInfo.lze.load {
       vim.api.nvim_set_hl(0, "MySnacksIndent", { fg = "#32a88f" })
       require('snacks').setup({
         explorer = { replace_netrw = true, },
+        input = {},
+        notifier = {},
+        quickfile = {},
+        scroll = {},
+        words = {},
         picker = {
           sources = {
             explorer = {
@@ -367,10 +386,13 @@ nixInfo.lze.load {
           end)
         end
       end
+      vim.api.nvim_create_user_command('LazyGit',  function() Snacks.lazygit.open() end, { desc = 'Open LazyGit' })
+      vim.api.nvim_create_user_command('Explorer', function() Snacks.explorer.open() end, { desc = 'Open file explorer' })
+      vim.api.nvim_create_user_command('Grep',     function() Snacks.picker.grep() end, { desc = 'Grep files' })
       -- NOTE: we aren't loading this lazily, and the keybinds already are so it is fine to just set these here
       vim.keymap.set("n", "-", function() Snacks.explorer.open() end, { desc = 'Snacks file explorer' })
       vim.keymap.set("n", "<c-\\>", function() Snacks.terminal.open() end, { desc = 'Snacks Terminal' })
-      vim.keymap.set("n", "<leader>_", function() Snacks.lazygit.open() end, { desc = 'Snacks LazyGit' })
+      vim.keymap.set("n", "<leader>gg", function() Snacks.lazygit.open() end, { desc = 'LazyGit' })
       vim.keymap.set('n', "<leader>sf", function() Snacks.picker.smart() end, { desc = "Smart Find Files" })
       vim.keymap.set('n', "<leader><leader>s", function() Snacks.picker.buffers() end, { desc = "Search Buffers" })
       -- find
@@ -380,9 +402,8 @@ nixInfo.lze.load {
       vim.keymap.set('n', "<leader>sb", function() Snacks.picker.lines() end, { desc = "Buffer Lines" })
       vim.keymap.set('n', "<leader>sB", function() Snacks.picker.grep_buffers() end, { desc = "Grep Open Buffers" })
       vim.keymap.set('n', "<leader>sg", function() Snacks.picker.grep() end, { desc = "Grep" })
-      vim.keymap.set({ "n", "x" }, "<leader>sw", function() Snacks.picker.grep_word() end, { desc = "Visual selection or ord" })
+      vim.keymap.set({ "n", "x" }, "<leader>sw", function() Snacks.picker.grep_word() end, { desc = "Grep word/selection" })
       -- search
-      vim.keymap.set('n', "<leader>sb", function() Snacks.picker.lines() end, { desc = "Buffer Lines" })
       vim.keymap.set('n', "<leader>sd", function() Snacks.picker.diagnostics() end, { desc = "Diagnostics" })
       vim.keymap.set('n', "<leader>sD", function() Snacks.picker.diagnostics_buffer() end, { desc = "Buffer Diagnostics" })
       vim.keymap.set('n', "<leader>sh", function() Snacks.picker.help() end, { desc = "Help Pages" })
@@ -577,23 +598,18 @@ nixInfo.lze.load {
         return true
       end
 
-      local installable_parsers = require("nvim-treesitter").get_available()
+      -- withAllGrammars pre-builds everything; no runtime install needed
+      -- checkhealth skipped: large buffer causes 7-10s C-level treesitter parse delay
+      local ts_skip = { checkhealth = true }
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
           local buf, filetype = args.buf, args.match
+          if ts_skip[filetype] then return end
           local language = vim.treesitter.language.get_lang(filetype)
-          if not language then
-            return
-          end
-
-          if not treesitter_try_attach(buf,language) then
-            if vim.tbl_contains(installable_parsers, language) then
-              -- not already installed, so try to install them via nvim-treesitter if possible
-              require("nvim-treesitter").install(language):await(function()
-                treesitter_try_attach(buf, language)
-              end)
-            end
-          end
+          if not language then return end
+          vim.schedule(function()
+            treesitter_try_attach(buf, language)
+          end)
         end,
       })
     end,
@@ -718,11 +734,13 @@ nixInfo.lze.load {
     -- colorscheme = "",
     after = function (plugin)
       require('lint').linters_by_ft = {
-        -- NOTE: download some linters
-        -- and configure them here
-        -- markdown = {'vale',},
-        -- javascript = { 'eslint' },
-        -- typescript = { 'eslint' },
+        -- THIS CODE IS UNVERIFIED
+        sh         = { 'shellcheck' },
+        javascript = { 'eslint' },
+        typescript = { 'eslint' },
+        python     = { 'ruff' },
+        yaml       = { 'yamllint' },
+        -- json covered by jsonls LSP
       }
 
       vim.api.nvim_create_autocmd({ "BufWritePost" }, {
@@ -758,6 +776,9 @@ nixInfo.lze.load {
         -- See :h blink-cmp-config-keymap for configuring keymaps
         keymap =  {
           preset = 'default',
+          ['<Up>'] = { 'select_prev', 'fallback' },
+          ['<Down>'] = { 'select_next', 'fallback' },
+          ['<CR>'] = { 'accept', 'fallback' },
         },
         cmdline = {
           enabled = true,
@@ -870,8 +891,8 @@ nixInfo.lze.load {
     after = function (plugin)
       require('lualine').setup({
         options = {
-          icons_enabled = false,
-          theme = nixInfo("onedark_dark", "settings", "colorscheme"),
+          icons_enabled = true,
+          theme = 'auto',
           component_separators = '|',
           section_separators = '',
         },
@@ -979,6 +1000,36 @@ nixInfo.lze.load {
       vim.cmd([[hi GitSignsDelete guifg=#fa2525]])
     end,
   },
+  -- THIS CODE IS UNVERIFIED
+  {
+    "nui.nvim",
+    auto_enable = true,
+    dep_of = { "fine-cmdline.nvim" },
+  },
+  {
+    "fine-cmdline.nvim",
+    auto_enable = true,
+    event = "VimEnter",
+    after = function(_)
+      local fine = require('fine-cmdline')
+      fine.setup({
+        cmdline = { enable_keymaps = true, smart_history = true },
+        popup   = { position = { row = '30%', col = '50%' }, size = { width = '60%' } },
+      })
+      vim.api.nvim_set_keymap('n', ':', '<cmd>FineCmdline<CR>', { noremap = true })
+    end,
+  },
+  {
+    "dressing.nvim",
+    auto_enable = true,
+    event = "VimEnter",
+    after = function(_)
+      require('dressing').setup({
+        input  = { enabled = false }, -- snacks.input handles vim.ui.input
+        select = { enabled = true },
+      })
+    end,
+  },
   {
     "which-key.nvim",
     auto_enable = true,
@@ -991,25 +1042,38 @@ nixInfo.lze.load {
       require('which-key').setup({
       })
       require('which-key').add {
-        { "<leader><leader>", group = "buffer commands" },
+        { "<leader><leader>",  group = "Buffers" },
         { "<leader><leader>_", hidden = true },
-        { "<leader>c", group = "[c]ode" },
-        { "<leader>c_", hidden = true },
-        { "<leader>d", group = "[d]ocument" },
-        { "<leader>d_", hidden = true },
-        { "<leader>g", group = "[g]it" },
-        { "<leader>g_", hidden = true },
-        { "<leader>m", group = "[m]arkdown" },
-        { "<leader>m_", hidden = true },
-        { "<leader>r", group = "[r]ename" },
-        { "<leader>r_", hidden = true },
-        { "<leader>s", group = "[s]earch" },
-        { "<leader>s_", hidden = true },
-        { "<leader>t", group = "[t]oggles" },
-        { "<leader>t_", hidden = true },
-        { "<leader>w", group = "[w]orkspace" },
-        { "<leader>w_", hidden = true },
+        { "<leader>c",         group = "Code" },
+        { "<leader>c_",        hidden = true },
+        { "<leader>d",         group = "Document" },
+        { "<leader>d_",        hidden = true },
+        { "<leader>f",         group = "Find Files" },
+        { "<leader>f_",        hidden = true },
+        { "<leader>g",         group = "Git" },
+        { "<leader>gg",        desc = "LazyGit" },
+        { "<leader>g_",        hidden = true },
+        { "<leader>m",         group = "Markdown" },
+        { "<leader>o",         group = "Opencode" },
+        { "<leader>o_",        hidden = true },
+        { "<leader>m_",        hidden = true },
+        { "<leader>r",         group = "Rename" },
+        { "<leader>r_",        hidden = true },
+        { "<leader>s",         group = "Search" },
+        { "<leader>s_",        hidden = true },
+        { "<leader>t",         group = "Toggles" },
+        { "<leader>tb",        desc = "Toggle git blame" },
+        { "<leader>td",        desc = "Toggle diagnostics" },
+        { "<leader>tw",        desc = "Toggle word wrap" },
+        { "<leader>t_",        hidden = true },
+        { "<leader>w",         group = "Workspace" },
+        { "<leader>w_",        hidden = true },
       }
+
+      -- Toggles
+      vim.keymap.set('n', '<leader>tb', function() require('gitsigns').toggle_current_line_blame() end, { desc = 'Toggle git blame' })
+      vim.keymap.set('n', '<leader>td', function() vim.diagnostic.enable(not vim.diagnostic.is_enabled()) end, { desc = 'Toggle diagnostics' })
+      vim.keymap.set('n', '<leader>tw', function() vim.o.wrap = not vim.o.wrap end, { desc = 'Toggle word wrap' })
     end,
   },
   -- THIS CODE IS UNVERIFIED
@@ -1041,58 +1105,90 @@ nixInfo.lze.load {
     after = function()
       require("mini.pairs").setup()
       require("mini.ai").setup()
+      require("mini.icons").setup()
+      require("mini.icons").mock_nvim_web_devicons() -- satisfy plugins that check for nvim-web-devicons
     end,
   },
   {
     "opencode.nvim",
     auto_enable = true,
     lazy = false,
-    after = function() pcall(require, "opencode") end,
+    after = function()
+      local opencode_cmd = 'opencode --port'
+      local snacks_terminal_opts = {
+        win = {
+          position = 'right',
+          enter = false,
+          on_win = function(win)
+            require('opencode.terminal').setup(win.win)
+          end,
+        },
+      }
+      local function nvim_ctx()
+        local buf = vim.api.nvim_get_current_buf()
+        return string.format(
+          'Editor: Neovim %d.%d | File: %s | ft: %s | cwd: %s',
+          vim.version().major, vim.version().minor,
+          vim.api.nvim_buf_get_name(buf),
+          vim.bo[buf].filetype,
+          vim.fn.getcwd()
+        )
+      end
+      vim.g.opencode_opts = {
+        server = {
+          start = function()
+            require('snacks.terminal').open(opencode_cmd, snacks_terminal_opts)
+          end,
+          stop = function()
+            require('snacks.terminal').get(opencode_cmd, snacks_terminal_opts):close()
+          end,
+          toggle = function()
+            require('snacks.terminal').toggle(opencode_cmd, snacks_terminal_opts)
+          end,
+        },
+        contexts = {
+          nvim = nvim_ctx,
+        },
+      }
+      pcall(require, "opencode")
+      local oc = require("opencode")
+      vim.keymap.set('n', '<leader>ot', oc.toggle,                                             { desc = 'Toggle panel' })
+      vim.keymap.set('n', '<leader>oa', oc.ask,                                              { desc = 'Ask' })
+      vim.keymap.set('n', '<leader>ob', function() oc.prompt('@buffers') end,                { desc = 'Share all buffers' })
+      vim.keymap.set('n', '<leader>os', oc.select,                                           { desc = 'Select prompt' })
+      vim.keymap.set('n', '<leader>oS', oc.select_session,                                   { desc = 'Select session' })
+      vim.keymap.set('n', '<leader>or', oc.select_server,                                    { desc = 'Select server' })
+      vim.keymap.set('n', '<leader>od', function() oc.prompt('@nvim diagnostics') end,       { desc = 'Explain diagnostics' })
+      -- operator maps: work with motions (e.g. <leader>oeip) AND visual selection
+      vim.keymap.set('n', '<leader>oe', function() return oc.operator('@nvim explain') end,  { expr = true, desc = 'Explain (operator)' })
+      vim.keymap.set('x', '<leader>oe', function() oc.prompt('@nvim explain') end,           { desc = 'Explain selection' })
+      vim.keymap.set('n', '<leader>of', function() return oc.operator('@nvim fix') end,      { expr = true, desc = 'Fix (operator)' })
+      vim.keymap.set('x', '<leader>of', function() oc.prompt('@nvim fix') end,               { desc = 'Fix selection' })
+      vim.keymap.set('n', '<leader>oR', function() return oc.operator('@nvim review') end,   { expr = true, desc = 'Review (operator)' })
+      vim.keymap.set('x', '<leader>oR', function() oc.prompt('@nvim review') end,            { desc = 'Review selection' })
+      local subcmds = { 'toggle', 'ask', 'prompt', 'select', 'select_session', 'select_server', 'start', 'stop' }
+      vim.api.nvim_create_user_command('Opencode', function(opts)
+        local arg = opts.args
+        if arg == '' or arg == 'toggle' then
+          oc.toggle()
+        elseif arg == 'ask' then
+          oc.ask()
+        elseif arg == 'select' then
+          oc.select()
+        elseif arg == 'select_session' then
+          oc.select_session()
+        elseif arg == 'select_server' then
+          oc.select_server()
+        elseif arg == 'start' then
+          oc.start()
+        elseif arg == 'stop' then
+          oc.stop()
+        else
+          -- treat as a prompt string; inject @nvim context automatically
+          oc.prompt('@nvim ' .. arg)
+        end
+      end, { nargs = '?', complete = function() return subcmds end, desc = 'Opencode commands' })
+    end,
   },
 }
 
--- THIS CODE IS UNVERIFIED
--- Suggest missing LSPs when opening a file with no active LSP client
-vim.api.nvim_create_autocmd("FileType", {
-  desc = "Suggest missing LSPs for current filetype",
-  callback = function(args)
-    local ft = args.match
-    local skip = { "", "help", "qf", "oil", "snacks_picker", "lazy", "nofile", "prompt" }
-    if not ft or vim.tbl_contains(skip, ft) then return end
-
-    vim.defer_fn(function()
-      local buf = args.buf
-      if not vim.api.nvim_buf_is_valid(buf) then return end
-
-      -- Already has an active LSP client? Done.
-      if #vim.lsp.get_clients({ bufnr = buf }) > 0 then return end
-
-      -- Scan lspconfig's lsp/ dir for servers supporting this filetype
-      local lspcfg_path = nixInfo.get_nix_plugin_path("nvim-lspconfig")
-      if not lspcfg_path then return end
-
-      local lze_state = require("lze").state
-      local suggestions = {}
-      for _, f in ipairs(vim.fn.glob(lspcfg_path .. "/lsp/*.lua", false, true)) do
-        local ok, cfg = pcall(dofile, f)
-        if ok and type(cfg) == "table" and vim.tbl_contains(cfg.filetypes or {}, ft) then
-          local name = vim.fn.fnamemodify(f, ":t:r")
-          -- Only suggest servers not already registered in lze state
-          if lze_state[name] == nil then
-            table.insert(suggestions, name)
-          end
-        end
-      end
-
-      if #suggestions > 0 then
-        vim.notify(
-          "[LSP] No LSP active for '" .. ft .. "'.\nAvailable: " ..
-          table.concat(suggestions, ", ") ..
-          "\n\nAdd to ~/Projects/nvim/init.lua as an lzextras.lsp spec.",
-          vim.log.levels.INFO,
-          { title = "LSP Hint", timeout = 8000 }
-        )
-      end
-    end, 2000)
-  end,
-})

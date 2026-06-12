@@ -13,12 +13,6 @@
     url = "github:BirdeeHub/lzextras";
     flake = false;
   };
-  # THIS CODE IS UNVERIFIED
-  # Pinned so pname = "catppuccin" → packpath dir "catppuccin" → packadd catppuccin works
-  inputs.plugins-catppuccin = {
-    url = "github:catppuccin/nvim";
-    flake = false;
-  };
   outputs =
     {
       self,
