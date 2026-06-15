@@ -82,7 +82,7 @@ return {
     auto_enable = true,
     event = "DeferredUIEnter",
     after = function(plugin)
-      require('which-key').setup({})
+      require('which-key').setup({ show_help = false, show_keys = false })
       require('which-key').add {
         { "<leader><leader>",  group = "Buffers" },
         { "<leader><leader>_", hidden = true },
