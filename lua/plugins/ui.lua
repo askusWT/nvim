@@ -60,7 +60,7 @@ return {
     after = function(_)
       local fine = require('fine-cmdline')
       fine.setup({
-        cmdline = { enable_keymaps = true, smart_history = true },
+        cmdline = { enable_keymaps = true, smart_history = false },
         popup   = { position = { row = '30%', col = '50%' }, size = { width = '60%' } },
       })
       vim.api.nvim_set_keymap('n', ':', '<cmd>FineCmdline<CR>', { noremap = true })
