@@ -98,7 +98,7 @@ inputs:
   # you can name these whatever you want.
   config.specs.nix = {
     data = null;
-    extraPackages = with pkgs; [
+    runtimePkgs = with pkgs; [
       nixd
       nixfmt
     ];
@@ -111,7 +111,7 @@ inputs:
       lazydev-nvim
       csvview-nvim
     ];
-    extraPackages = with pkgs; [
+    runtimePkgs = with pkgs; [
       lua-language-server
       stylua
     ];
@@ -119,7 +119,7 @@ inputs:
 
   config.specs.linters = {
     data = null;
-    extraPackages = with pkgs; [
+    runtimePkgs = with pkgs; [
       shellcheck
       eslint
       yamllint
@@ -133,7 +133,7 @@ inputs:
     # If we provided any from within either spec, anyway
     after = [ "lze" ];
     # note we didn't have to specify the `lze` specs name, because it was a top level spec
-    extraPackages = with pkgs; [
+    runtimePkgs = with pkgs; [
       lazygit
     ];
     # this `lazy = true` definition will transfer to specs in the contained DAL, if there is one.
@@ -211,16 +211,16 @@ inputs:
       # config.runtimeDeps = lib.mkDefault (parentSpec.runtimeDeps or false);
       # config.pluginDeps = lib.mkDefault (parentSpec.pluginDeps or false);
       # or something more interesting like:
-      # add an extraPackages field to the specs themselves
-      options.extraPackages = lib.mkOption {
+      # add a runtimePkgs spec field to put packages on the PATH
+      options.runtimePkgs = lib.mkOption {
         type = lib.types.listOf wlib.types.stringable;
         default = [ ];
-        description = "a extraPackages spec field to put packages to suffix to the PATH";
+        description = "runtimePkgs spec field — packages added to PATH for this spec";
       };
       # You could do this too
       # config.before = lib.mkDefault [ "INIT_MAIN" ];
     };
-  config.extraPackages = config.specCollect (acc: v: acc ++ (v.extraPackages or [ ])) [ ];
+  config.runtimePkgs = config.specCollect (acc: v: acc ++ (v.runtimePkgs or [ ])) [ ];
 
   # Inform our lua of which top level specs are enabled
   options.settings.cats = lib.mkOption {
