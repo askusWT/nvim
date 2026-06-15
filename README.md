@@ -1,0 +1,2 @@
+# nvim
+nix wrappers version
