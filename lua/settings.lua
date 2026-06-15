@@ -61,6 +61,9 @@ vim.o.completeopt = 'menu,preview,noselect'
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
 
+-- lualine shows mode; suppress the built-in redundant echo
+vim.o.showmode = false
+
 vim.o.splitright = true
 vim.o.splitbelow = true
 vim.o.cursorline = true
