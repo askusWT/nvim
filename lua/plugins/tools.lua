@@ -40,14 +40,18 @@ return {
           nvim = nvim_ctx,
         },
       }
-      pcall(require, "opencode")
       local oc = require("opencode")
-      vim.keymap.set('n', '<leader>ot', oc.toggle,                                             { desc = 'Toggle panel' })
+      local function oc_toggle()
+        require('snacks.terminal').toggle(opencode_cmd, snacks_terminal_opts)
+      end
+      local function oc_stop()
+        local term = require('snacks.terminal').get(opencode_cmd, snacks_terminal_opts)
+        if term then term:close() end
+      end
+      vim.keymap.set('n', '<leader>ot', oc_toggle,                                             { desc = 'Toggle panel' })
       vim.keymap.set('n', '<leader>oa', oc.ask,                                                { desc = 'Ask' })
       vim.keymap.set('n', '<leader>ob', function() oc.prompt('@buffers') end,                  { desc = 'Share all buffers' })
-      vim.keymap.set('n', '<leader>os', oc.select,                                             { desc = 'Select prompt' })
-      vim.keymap.set('n', '<leader>oS', oc.select_session,                                     { desc = 'Select session' })
-      vim.keymap.set('n', '<leader>or', oc.select_server,                                      { desc = 'Select server' })
+      vim.keymap.set('n', '<leader>os', oc.select,                                             { desc = 'Select' })
       vim.keymap.set('n', '<leader>od', function() oc.prompt('@nvim diagnostics') end,         { desc = 'Explain diagnostics' })
       -- operator maps: work with motions (e.g. <leader>oeip) AND visual selection
       vim.keymap.set('n', '<leader>oe', function() return oc.operator('@nvim explain') end,    { expr = true, desc = 'Explain (operator)' })
@@ -56,23 +60,19 @@ return {
       vim.keymap.set('x', '<leader>of', function() oc.prompt('@nvim fix') end,                 { desc = 'Fix selection' })
       vim.keymap.set('n', '<leader>oR', function() return oc.operator('@nvim review') end,     { expr = true, desc = 'Review (operator)' })
       vim.keymap.set('x', '<leader>oR', function() oc.prompt('@nvim review') end,              { desc = 'Review selection' })
-      local subcmds = { 'toggle', 'ask', 'prompt', 'select', 'select_session', 'select_server', 'start', 'stop' }
+      local subcmds = { 'toggle', 'ask', 'prompt', 'select', 'start', 'stop' }
       vim.api.nvim_create_user_command('Opencode', function(opts)
         local arg = opts.args
         if arg == '' or arg == 'toggle' then
-          oc.toggle()
+          oc_toggle()
         elseif arg == 'ask' then
           oc.ask()
         elseif arg == 'select' then
           oc.select()
-        elseif arg == 'select_session' then
-          oc.select_session()
-        elseif arg == 'select_server' then
-          oc.select_server()
         elseif arg == 'start' then
           oc.start()
         elseif arg == 'stop' then
-          oc.stop()
+          oc_stop()
         else
           -- treat as a prompt string; inject @nvim context automatically
           oc.prompt('@nvim ' .. arg)
