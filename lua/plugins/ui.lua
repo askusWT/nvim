@@ -12,6 +12,7 @@ return {
   {
     "fidget.nvim",
     auto_enable = true,
+    cmd = { "FidgetHistory", "FidgetClear" },
     event = "DeferredUIEnter",
     after = function(plugin)
       require('fidget').setup({})
@@ -56,6 +57,7 @@ return {
   {
     "fine-cmdline.nvim",
     auto_enable = true,
+    cmd = { "FineCmdline" },
     event = "VimEnter",
     after = function(_)
       local fine = require('fine-cmdline')
@@ -80,6 +82,7 @@ return {
   {
     "which-key.nvim",
     auto_enable = true,
+    cmd = { "WhichKey" },
     event = "DeferredUIEnter",
     after = function(plugin)
       require('which-key').setup({ show_help = false, show_keys = false })
