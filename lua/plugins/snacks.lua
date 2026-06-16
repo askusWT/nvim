@@ -24,6 +24,34 @@ return {
         },
         git = {},
         terminal = {},
+        dashboard = {
+          enabled = true,
+          width = 60,
+          preset = {
+            header = [[
+  ██╗  ██╗██╗   ██╗██╗███╗   ███╗
+  ███╗ ██║██║   ██║██║████╗ ████║
+  ██╔██╗██║╚██╗██╔╝██║██╔████╔██║
+  ██║╚████║ ╚███╔╝ ██║██║╚██╔╝██║
+  ██║ ╚███║  ╚█╔╝  ██║██║ ╚═╝ ██║
+  ╚═╝  ╚══╝   ╚╝   ╚═╝╚═╝     ╚═╝]],
+            keys = {
+              { icon = " ", key = "f", desc = "Find File",     action = ":lua Snacks.dashboard.pick('files')" },
+              { icon = " ", key = "n", desc = "New File",      action = ":ene | startinsert" },
+              { icon = " ", key = "g", desc = "Live Grep",     action = ":lua Snacks.dashboard.pick('live_grep')" },
+              { icon = " ", key = "r", desc = "Recent Files",  action = ":lua Snacks.dashboard.pick('oldfiles')" },
+              { icon = " ", key = "v", desc = "Visited Files", action = ":lua require('mini.visits') and vim.cmd('normal <leader>fv')" },
+              { icon = " ", key = "s", desc = "Session",       section = "session" },
+              { icon = " ", key = "q", desc = "Quit",          action = ":qa" },
+            },
+          },
+          sections = {
+            { section = "header" },
+            { section = "keys",         gap = 1, padding = 1 },
+            { section = "recent_files", title = "Recent", limit = 5, padding = 1 },
+            { section = "startup" },
+          },
+        },
         scope = {},
         indent = {
           scope = {
@@ -103,6 +131,16 @@ return {
       vim.api.nvim_create_user_command('SnacksUndo',     function() Snacks.picker.undo() end,            { desc = 'Undo history' })
       vim.api.nvim_create_user_command('SnacksResume',   function() Snacks.picker.resume() end,          { desc = 'Resume last picker' })
       vim.api.nvim_create_user_command('SnacksNotify',   function() Snacks.notifier.show_history() end,  { desc = 'Notification history' })
+      -- bufdelete / rename / gitbrowse
+      -- THIS CODE IS UNVERIFIED
+      vim.api.nvim_create_user_command('BufDelete', function() Snacks.bufdelete() end, { desc = 'Delete buffer (keep window)' })
+      vim.api.nvim_create_user_command('GitBrowse', function() Snacks.gitbrowse() end, { desc = 'Open file in browser (GitHub etc.)' })
+      vim.keymap.set('n', '<leader><leader>d', function() Snacks.bufdelete() end,      { desc = 'Delete buffer' })
+      vim.keymap.set('n', '<leader>rf',        function() Snacks.rename.rename() end,  { desc = 'Rename file (LSP-aware)' })
+      vim.keymap.set('n', '<leader>gB',        function() Snacks.gitbrowse() end,      { desc = 'Git browse (open in browser)' })
+      -- words navigation (module already enabled above)
+      vim.keymap.set('n', ']]', function() Snacks.words.jump(1) end,  { desc = 'Next word occurrence' })
+      vim.keymap.set('n', '[[', function() Snacks.words.jump(-1) end, { desc = 'Prev word occurrence' })
       -- snacks isn't loaded lazily, so keybinds can be set directly here
       vim.keymap.set("n", "-", function() Snacks.explorer.open() end, { desc = 'Snacks file explorer' })
       vim.keymap.set("n", "<c-\\>", function() Snacks.terminal.open() end, { desc = 'Snacks Terminal' })
