@@ -21,6 +21,7 @@ return {
       { "<leader>fo", desc = "Old Files" },
       { "<leader>fr", desc = "Resume" },
       { "<leader>fc", desc = "Find in Config" },
+      { "<leader>fG", desc = "Git Files" },
     },
     after = function(_)
       local telescope = require('telescope')
@@ -44,6 +45,7 @@ return {
       vim.keymap.set('n', '<leader>fh', builtin.help_tags,   { desc = 'Help Tags' })
       vim.keymap.set('n', '<leader>fo', builtin.oldfiles,    { desc = 'Old Files' })
       vim.keymap.set('n', '<leader>fr', builtin.resume,      { desc = 'Resume' })
+      vim.keymap.set('n', '<leader>fG', builtin.git_files, { desc = 'Git Files' })
       vim.keymap.set('n', '<leader>fc', function()
         builtin.find_files({ cwd = vim.fn.stdpath('config') })
       end, { desc = 'Find in Config' })
