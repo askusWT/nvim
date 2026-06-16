@@ -13,7 +13,12 @@ return {
         input = {},
         notifier = {},
         quickfile = {},
-        scroll = {},
+        scroll = {
+          animate = {
+            duration = { step = 15, total = 250 },
+            easing = "linear",
+          },
+        },
         words = {},
         picker = {
           sources = {
