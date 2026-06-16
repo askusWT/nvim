@@ -83,6 +83,24 @@ return {
     event = "DeferredUIEnter",
     after = function(plugin)
       require('which-key').setup({ show_help = false, show_keys = false })
+      -- Uppercase proxies: pressing <leader>W etc. re-fires the lowercase group
+      local function proxy(lhs)
+        return function()
+          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(lhs, true, true, true), 'i', false)
+        end
+      end
+      require('which-key').add {
+        { '<leader>C', proxy('<leader>c'), hidden = true },
+        { '<leader>D', proxy('<leader>d'), hidden = true },
+        { '<leader>F', proxy('<leader>f'), hidden = true },
+        { '<leader>G', proxy('<leader>g'), hidden = true },
+        { '<leader>M', proxy('<leader>m'), hidden = true },
+        { '<leader>O', proxy('<leader>o'), hidden = true },
+        { '<leader>R', proxy('<leader>r'), hidden = true },
+        { '<leader>S', proxy('<leader>s'), hidden = true },
+        { '<leader>T', proxy('<leader>t'), hidden = true },
+        { '<leader>W', proxy('<leader>w'), hidden = true },
+      }
       require('which-key').add {
         { "<leader><leader>",  group = "Buffers" },
         { "<leader><leader>_", hidden = true },

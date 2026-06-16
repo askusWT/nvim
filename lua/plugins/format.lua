@@ -2,6 +2,7 @@ return {
   {
     "conform.nvim",
     auto_enable = true,
+    cmd = { "ConformInfo" },
     keys = {
       { "<leader>FF", desc = "[F]ormat [F]ile" },
     },
