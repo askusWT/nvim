@@ -26,4 +26,5 @@ nixInfo.lze.load {
   { import = 'plugins.git' },
   { import = 'plugins.editing' },
   { import = 'plugins.tools' },
+  { import = 'plugins.telescope' },
 }

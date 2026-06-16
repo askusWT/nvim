@@ -182,6 +182,10 @@ inputs:
       fine-cmdline-nvim
       nui-nvim
       dressing-nvim
+      # THIS CODE IS UNVERIFIED
+      telescope-nvim
+      telescope-fzf-native-nvim
+      plenary-nvim
     ];
   };
 

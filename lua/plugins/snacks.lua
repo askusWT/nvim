@@ -90,9 +90,19 @@ return {
           end)
         end
       end
-      vim.api.nvim_create_user_command('LazyGit',  function() Snacks.lazygit.open() end, { desc = 'Open LazyGit' })
-      vim.api.nvim_create_user_command('Explorer', function() Snacks.explorer.open() end, { desc = 'Open file explorer' })
-      vim.api.nvim_create_user_command('Grep',     function() Snacks.picker.grep() end, { desc = 'Grep files' })
+      vim.api.nvim_create_user_command('LazyGit',        function() Snacks.lazygit.open() end,           { desc = 'Open LazyGit' })
+      vim.api.nvim_create_user_command('Explorer',       function() Snacks.explorer.open() end,          { desc = 'Open file explorer' })
+      vim.api.nvim_create_user_command('Grep',           function() Snacks.picker.grep() end,            { desc = 'Grep files' })
+      vim.api.nvim_create_user_command('SnacksFiles',    function() Snacks.picker.files() end,           { desc = 'Find files' })
+      vim.api.nvim_create_user_command('SnacksBufLines', function() Snacks.picker.lines() end,           { desc = 'Buffer lines' })
+      vim.api.nvim_create_user_command('SnacksBuffers',  function() Snacks.picker.buffers() end,         { desc = 'Open buffers' })
+      vim.api.nvim_create_user_command('SnacksHelp',     function() Snacks.picker.help() end,            { desc = 'Help pages' })
+      vim.api.nvim_create_user_command('SnacksMarks',    function() Snacks.picker.marks() end,           { desc = 'Marks' })
+      vim.api.nvim_create_user_command('SnacksKeymaps',  function() Snacks.picker.keymaps() end,         { desc = 'Keymaps' })
+      vim.api.nvim_create_user_command('SnacksDiag',     function() Snacks.picker.diagnostics() end,     { desc = 'Diagnostics' })
+      vim.api.nvim_create_user_command('SnacksUndo',     function() Snacks.picker.undo() end,            { desc = 'Undo history' })
+      vim.api.nvim_create_user_command('SnacksResume',   function() Snacks.picker.resume() end,          { desc = 'Resume last picker' })
+      vim.api.nvim_create_user_command('SnacksNotify',   function() Snacks.notifier.show_history() end,  { desc = 'Notification history' })
       -- snacks isn't loaded lazily, so keybinds can be set directly here
       vim.keymap.set("n", "-", function() Snacks.explorer.open() end, { desc = 'Snacks file explorer' })
       vim.keymap.set("n", "<c-\\>", function() Snacks.terminal.open() end, { desc = 'Snacks Terminal' })
