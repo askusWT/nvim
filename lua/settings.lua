@@ -28,7 +28,6 @@ vim.wo.number = true
 
 -- Enable mouse mode
 vim.o.mouse = 'a'
-vim.o.mousescroll = 'ver:2,hor:6'
 
 -- Indent
 vim.opt.cpoptions:append('I')
