@@ -40,7 +40,7 @@ return {
               { icon = " ", key = "n", desc = "New File",      action = ":ene | startinsert" },
               { icon = " ", key = "g", desc = "Live Grep",     action = ":lua Snacks.dashboard.pick('live_grep')" },
               { icon = " ", key = "r", desc = "Recent Files",  action = ":lua Snacks.dashboard.pick('oldfiles')" },
-              { icon = " ", key = "v", desc = "Visited Files", action = ":lua require('mini.visits') and vim.cmd('normal <leader>fv')" },
+              { icon = " ", key = "v", desc = "Visited Files", action = ":VisitedFiles" },
               { icon = " ", key = "s", desc = "Session",       section = "session" },
               { icon = " ", key = "q", desc = "Quit",          action = ":qa" },
             },

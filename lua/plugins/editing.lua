@@ -34,7 +34,7 @@ return {
 
       -- THIS CODE IS UNVERIFIED
       require("mini.visits").setup()
-      vim.keymap.set('n', '<leader>fv', function()
+      local function visited_files_picker()
         local paths = MiniVisits.list_paths()
         require('telescope.pickers').new({}, {
           prompt_title = 'Visited Files',
@@ -50,7 +50,9 @@ return {
             return true
           end,
         }):find()
-      end, { desc = 'Visited Files (frecency)' })
+      end
+      vim.api.nvim_create_user_command('VisitedFiles', visited_files_picker, { desc = 'Visited Files (frecency)' })
+      vim.keymap.set('n', '<leader>fv', visited_files_picker, { desc = 'Visited Files (frecency)' })
     end,
   },
   -- THIS CODE IS UNVERIFIED
