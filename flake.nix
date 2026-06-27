@@ -51,7 +51,7 @@
       # `wrappers.neovim.enable = true`
       nixosModules = {
         default = self.nixosModules.neovim;
-        neovim = wrappers.lib.mkInstallModule {
+        neovim = wrappers.lib.getInstallModule {
           name = "neovim";
           value = module;
         };
@@ -61,13 +61,9 @@
       # But that is how you enable it.
       homeModules = {
         default = self.homeModules.neovim;
-        neovim = wrappers.lib.mkInstallModule {
+        neovim = wrappers.lib.getInstallModule {
           name = "neovim";
           value = module;
-          loc = [
-            "home"
-            "packages"
-          ];
         };
       };
     };

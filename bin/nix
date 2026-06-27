@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# In ~/Projects/nvim: redirect `nix build` to `just build` so the lua
+# bytecode cache is always cleared after a rebuild.
+# _NVIM_IN_JUST sentinel prevents recursion when justfile calls nix build.
+[[ "$1" == "build" && -z "$_NVIM_IN_JUST" ]] && exec just build
+_dir="$HOME/Projects/nvim/bin:"
+exec env PATH="${PATH/$_dir/}" nix "$@"

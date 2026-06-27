@@ -12,6 +12,25 @@ return {
         explorer = { replace_netrw = true, },
         input = {},
         notifier = {},
+        bigfile = {
+          notify = true,
+          size = 1.5 * 1024 * 1024,
+          line_length = 1000,
+          setup = function(ctx)
+            if vim.fn.exists(":NoMatchParen") ~= 0 then
+              vim.cmd([[NoMatchParen]])
+            end
+            Snacks.util.wo(0, { foldmethod = "manual", statuscolumn = "", conceallevel = 0 })
+            vim.b.completion = false
+            vim.b.minianimate_disable = true
+            vim.schedule(function()
+              if vim.api.nvim_buf_is_valid(ctx.buf) then
+                vim.treesitter.stop(ctx.buf)
+                vim.bo[ctx.buf].syntax = ctx.ft
+              end
+            end)
+          end,
+        },
         quickfile = {},
         scroll = {
           animate = {
@@ -26,9 +45,34 @@ return {
               auto_close = true,
             },
           },
+          actions = {
+            opencode_send = function(picker)
+              local items = vim.tbl_map(function(item)
+                return item.file
+                  and require("opencode").format({ path = item.file, from = item.pos, to = item.end_pos })
+                  or item.text
+              end, picker:selected({ fallback = true }))
+              require("opencode").prompt(table.concat(items, ", ") .. " ")
+            end,
+          },
+          win = {
+            input = {
+              keys = {
+                ["<a-a>"] = { "opencode_send", mode = { "n", "i" } },
+              },
+            },
+          },
         },
         git = {},
-        terminal = {},
+        terminal = {
+          win = {
+            position = 'bottom',
+            height = 0.3,
+            border = 'rounded',
+          },
+          auto_insert = true,
+          auto_close = true,
+        },
         dashboard = {
           enabled = true,
           width = 60,
@@ -141,6 +185,12 @@ return {
       vim.api.nvim_create_user_command('GitBrowse', function() Snacks.gitbrowse() end, { desc = 'Open file in browser (GitHub etc.)' })
       vim.keymap.set('n', '<leader><leader>d', function() Snacks.bufdelete() end,      { desc = 'Delete buffer' })
       vim.keymap.set('n', '<leader>rf',        function() Snacks.rename.rename() end,  { desc = 'Rename file (LSP-aware)' })
+      -- THIS CODE IS UNVERIFIED
+      -- Buffer navigation (LazyVim muscle memory)
+      vim.keymap.set('n', '<S-h>',       '<cmd>bprev<cr>',                        { desc = 'Prev Buffer' })
+      vim.keymap.set('n', '<S-l>',       '<cmd>bnext<cr>',                        { desc = 'Next Buffer' })
+      vim.keymap.set('n', '<leader>bd',  function() Snacks.bufdelete() end,       { desc = 'Delete Buffer' })
+      vim.keymap.set('n', '<leader>bb',  '<cmd>e #<cr>',                          { desc = 'Alternate Buffer' })
       vim.keymap.set('n', '<leader>gB',        function() Snacks.gitbrowse() end,      { desc = 'Git browse (open in browser)' })
       -- words navigation (module already enabled above)
       vim.keymap.set('n', ']]', function() Snacks.words.jump(1) end,  { desc = 'Next word occurrence' })
@@ -168,6 +218,12 @@ return {
       vim.keymap.set('n', "<leader>sq", function() Snacks.picker.qflist() end, { desc = "Quickfix List" })
       vim.keymap.set('n', "<leader>sR", function() Snacks.picker.resume() end, { desc = "Resume" })
       vim.keymap.set('n', "<leader>su", function() Snacks.picker.undo() end, { desc = "Undo History" })
+      -- THIS CODE IS UNVERIFIED
+      -- Lists group (<leader>x = LazyVim/Trouble convention, wired to snacks pickers)
+      vim.keymap.set('n', "<leader>xx", function() Snacks.picker.diagnostics() end,        { desc = "Workspace Diagnostics" })
+      vim.keymap.set('n', "<leader>xd", function() Snacks.picker.diagnostics_buffer() end, { desc = "Buffer Diagnostics" })
+      vim.keymap.set('n', "<leader>xq", function() Snacks.picker.qflist() end,             { desc = "Quickfix List" })
+      vim.keymap.set('n', "<leader>xl", function() Snacks.picker.loclist() end,            { desc = "Location List" })
     end
   },
 }

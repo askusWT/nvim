@@ -3,8 +3,9 @@ return {
     "conform.nvim",
     auto_enable = true,
     cmd = { "ConformInfo" },
+    event = { "BufWritePre" },
     keys = {
-      { "<leader>FF", desc = "[F]ormat [F]ile" },
+      { "<leader>cf", desc = "[C]ode [F]ormat", mode = { "n", "v" } },
     },
     after = function(plugin)
       local conform = require("conform")
@@ -27,13 +28,13 @@ return {
         },
       })
 
-      vim.keymap.set({ "n", "v" }, "<leader>FF", function()
+      vim.keymap.set({ "n", "v" }, "<leader>cf", function()
         conform.format({
           lsp_fallback = true,
           async = false,
           timeout_ms = 1000,
         })
-      end, { desc = "[F]ormat [F]ile" })
+      end, { desc = "[C]ode [F]ormat" })
     end,
   },
   {

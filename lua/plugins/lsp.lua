@@ -23,6 +23,8 @@ return {
           end
 
           nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+          nmap('<leader>cr', vim.lsp.buf.rename, '[C]ode [R]ename')
+nmap('<leader>cd', vim.diagnostic.open_float, '[C]ode [D]iagnostics float')
           nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
           nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
           nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')

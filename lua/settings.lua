@@ -61,6 +61,8 @@ vim.o.completeopt = 'menu,preview,noselect'
 
 -- NOTE: You should make sure your terminal supports this
 vim.o.termguicolors = true
+-- Crostini terminal doesn't respond to DSR background-color query; set explicitly to suppress E1568
+vim.o.background = 'dark'
 
 -- lualine shows mode; suppress the built-in redundant echo
 vim.o.showmode = false

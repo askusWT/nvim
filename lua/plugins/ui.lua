@@ -93,6 +93,7 @@ return {
         end
       end
       require('which-key').add {
+        { '<leader>B', proxy('<leader>b'), hidden = true },
         { '<leader>C', proxy('<leader>c'), hidden = true },
         { '<leader>D', proxy('<leader>d'), hidden = true },
         { '<leader>F', proxy('<leader>f'), hidden = true },
@@ -101,12 +102,15 @@ return {
         { '<leader>O', proxy('<leader>o'), hidden = true },
         { '<leader>R', proxy('<leader>r'), hidden = true },
         { '<leader>S', proxy('<leader>s'), hidden = true },
-        { '<leader>T', proxy('<leader>t'), hidden = true },
+        { '<leader>U', proxy('<leader>u'), hidden = true },
         { '<leader>W', proxy('<leader>w'), hidden = true },
+        { '<leader>X', proxy('<leader>x'), hidden = true },
       }
       require('which-key').add {
         { "<leader><leader>",  group = "Buffers" },
         { "<leader><leader>_", hidden = true },
+        { "<leader>b",         group = "Buffers" },
+        { "<leader>b_",        hidden = true },
         { "<leader>c",         group = "Code" },
         { "<leader>c_",        hidden = true },
         { "<leader>d",         group = "Document" },
@@ -124,19 +128,36 @@ return {
         { "<leader>r_",        hidden = true },
         { "<leader>s",         group = "Search" },
         { "<leader>s_",        hidden = true },
-        { "<leader>t",         group = "Toggles" },
-        { "<leader>tb",        desc = "Toggle git blame" },
-        { "<leader>td",        desc = "Toggle diagnostics" },
-        { "<leader>tw",        desc = "Toggle word wrap" },
-        { "<leader>t_",        hidden = true },
+        { "<leader>u",         group = "Toggles" },
+        { "<leader>ub",        desc = "Toggle git blame" },
+        { "<leader>ud",        desc = "Toggle diagnostics" },
+        { "<leader>uw",        desc = "Toggle word wrap" },
+        { "<leader>u_",        hidden = true },
         { "<leader>w",         group = "Workspace" },
         { "<leader>w_",        hidden = true },
+        { "<leader>x",         group = "Lists" },
+        { "<leader>x_",        hidden = true },
       }
 
-      -- Toggles
-      vim.keymap.set('n', '<leader>tb', function() require('gitsigns').toggle_current_line_blame() end, { desc = 'Toggle git blame' })
-      vim.keymap.set('n', '<leader>td', function() vim.diagnostic.enable(not vim.diagnostic.is_enabled()) end, { desc = 'Toggle diagnostics' })
-      vim.keymap.set('n', '<leader>tw', function() vim.o.wrap = not vim.o.wrap end, { desc = 'Toggle word wrap' })
+      -- THIS CODE IS UNVERIFIED
+      -- Toggles (<leader>u = LazyVim convention)
+      vim.keymap.set('n', '<leader>ub', function() require('gitsigns').toggle_current_line_blame() end, { desc = 'Toggle git blame' })
+      vim.keymap.set('n', '<leader>ud', function() vim.diagnostic.enable(not vim.diagnostic.is_enabled()) end, { desc = 'Toggle diagnostics' })
+      vim.keymap.set('n', '<leader>uw', function() vim.o.wrap = not vim.o.wrap end, { desc = 'Toggle word wrap' })
+      -- Diagnostic navigation
+      vim.keymap.set('n', ']d', function() vim.diagnostic.goto_next() end, { desc = 'Next Diagnostic' })
+      vim.keymap.set('n', '[d', function() vim.diagnostic.goto_prev() end, { desc = 'Prev Diagnostic' })
+      vim.keymap.set('n', ']e', function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Next Error' })
+      vim.keymap.set('n', '[e', function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) end, { desc = 'Prev Error' })
+      vim.keymap.set('n', ']w', function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN }) end, { desc = 'Next Warning' })
+      vim.keymap.set('n', '[w', function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN }) end, { desc = 'Prev Warning' })
+      -- Window splits and navigation
+      vim.keymap.set('n', '<leader>-',  '<cmd>split<cr>',  { desc = 'Split Window Horizontal' })
+      vim.keymap.set('n', '<leader>|',  '<cmd>vsplit<cr>', { desc = 'Split Window Vertical' })
+      vim.keymap.set('n', '<leader>wd', '<cmd>close<cr>',  { desc = 'Delete Window' })
+      vim.keymap.set('n', '<C-h>', '<C-w>h', { desc = 'Window Left' })
+      vim.keymap.set('n', '<C-j>', '<C-w>j', { desc = 'Window Down' })
+      vim.keymap.set('n', '<C-l>', '<C-w>l', { desc = 'Window Right' })
     end,
   },
 }
