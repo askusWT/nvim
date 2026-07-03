@@ -45,6 +45,11 @@ return {
             explorer = {
               auto_close = true,
             },
+            grep = {
+              -- ~/.config/rg/ripgreprc sets --context=3 globally; that breaks snacks'
+              -- NUL-delimited match parser, which chokes on context lines. Override per-picker.
+              args = { "--context=0" },
+            },
           },
           actions = {
             opencode_send = function(picker)
@@ -137,16 +142,6 @@ return {
           },
         },
       })
-      -- DEBUG: temporary instrumentation to trace "invalid grep output" origin — remove once resolved
-      do
-        local orig_notify_error = Snacks.notify.error
-        Snacks.notify.error = function(msg, opts)
-          if type(msg) == "string" and msg:match("invalid grep output") then
-            Snacks.debug.backtrace()
-          end
-          return orig_notify_error(msg, opts)
-        end
-      end
       -- Handle the backend of those remote commands.
       -- hopefully this can be removed one day
       -- NOTE: lazygit_fix must be defined here — it's a closure that references Snacks state
