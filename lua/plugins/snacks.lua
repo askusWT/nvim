@@ -46,9 +46,10 @@ return {
               auto_close = true,
             },
             grep = {
-              -- ~/.config/rg/ripgreprc sets --context=3 globally; that breaks snacks'
-              -- NUL-delimited match parser, which chokes on context lines. Override per-picker.
-              args = { "--context=0" },
+              -- ~/.config/rg/ripgreprc sets --context=3 and --stats globally; both break
+              -- snacks' NUL-delimited match parser (context lines use a different separator,
+              -- and the --stats footer isn't match-formatted at all). Override per-picker.
+              args = { "--context=0", "--no-stats" },
             },
           },
           actions = {
