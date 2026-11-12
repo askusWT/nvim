@@ -7,6 +7,13 @@ return {
       ---@param buf integer
       ---@param language string
       local function treesitter_try_attach(buf, language)
+        -- CODE VERIFIED (scripts/check.sh; 10 rapid open/quit runs, no Invalid buffer id)
+        -- The FileType autocmd below schedules this call; the buffer can be wiped
+        -- before the callback runs (fast :q), which made vim.treesitter.start
+        -- raise "Invalid buffer id". Bail out instead of attaching to a dead buffer.
+        if not vim.api.nvim_buf_is_valid(buf) then
+          return false
+        end
         if not vim.treesitter.language.add(language) then
           return false
         end
@@ -19,7 +26,7 @@ return {
         vim.o.foldlevel = 99
 
         -- enables treesitter based indentation
-        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        vim.bo[buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
 
         return true
       end
@@ -34,6 +41,8 @@ return {
           local language = vim.treesitter.language.get_lang(filetype)
           if not language then return end
           vim.schedule(function()
+            -- Same race as above: FileType fires, then the buffer may be gone.
+            if not vim.api.nvim_buf_is_valid(buf) then return end
             treesitter_try_attach(buf, language)
           end)
         end,
