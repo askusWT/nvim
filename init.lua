@@ -10,6 +10,11 @@
 
 require('bootstrap')
 require('settings')
+
+-- Diagnostic log for write/quit errors (:WriteAudit). Messages only — never
+-- buffer contents. Loaded early so VimLeavePre/QuitPre are always registered.
+require('config.write_audit').setup()
+
 require('keymaps')
 
 -- NOTE: lze.load can be called multiple times.

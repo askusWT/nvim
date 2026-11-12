@@ -26,7 +26,11 @@ return {
           reload = true,
           permissions = {
             enabled = true,
-            edits = { enabled = true },
+            -- diff preview hits E816 "Cannot read patch output" on some edits (opencode.nvim
+            -- 0.13.3, not the already-patched path-resolution bug — a different edge case,
+            -- see nixconfig .planning/agents/claude/findings_16.md). Edits still apply via
+            -- opencode's own flow; we just lose the per-hunk da/dr/dp/do diff-view keymaps.
+            edits = { enabled = false },
           },
         },
       }
@@ -68,6 +72,17 @@ return {
         end,
       })
 
+      -- :q/:qa on the last window shouldn't leave the opencode TUI process orphaned
+      vim.api.nvim_create_autocmd('VimLeavePre', {
+        once = true,
+        callback = function()
+          local term = require('snacks.terminal').get(opencode_cmd, { create = false })
+          if term then
+            term:close({ buf = true })
+          end
+        end,
+      })
+
       vim.keymap.set('n',          '<leader>ot', oc_toggle,                                               { desc = 'Toggle panel' })
       vim.keymap.set({ 'n', 'x' }, '<leader>oa', function() oc.ask('@this: ') end,                       { desc = 'Ask' })
       vim.keymap.set('n',          '<leader>ob', function() oc.ask('@buffers ') end,                      { desc = 'Ask with all buffers' })
@@ -84,12 +99,15 @@ return {
         end
         oc.prompt('@this Explain these diagnostics:\n' .. table.concat(lines, '\n'))
       end, { desc = 'Explain diagnostics' })
-      vim.keymap.set('n',          '<leader>oe', function() return oc.operator('@nvim explain') end,      { expr = true, desc = 'Explain (operator)' })
-      vim.keymap.set('x',          '<leader>oe', function() oc.prompt('@nvim explain') end,               { desc = 'Explain selection' })
-      vim.keymap.set('n',          '<leader>of', function() return oc.operator('@nvim fix') end,          { expr = true, desc = 'Fix (operator)' })
-      vim.keymap.set('x',          '<leader>of', function() oc.prompt('@nvim fix') end,                   { desc = 'Fix selection' })
-      vim.keymap.set('n',          '<leader>oR', function() return oc.operator('@nvim review') end,       { expr = true, desc = 'Review (operator)' })
-      vim.keymap.set('x',          '<leader>oR', function() oc.prompt('@nvim review') end,                { desc = 'Review selection' })
+      -- @this/@diagnostics unlike nvim_ctx: rendered only when named literally in the prompt
+      -- string (opencode.nvim doesn't auto-attach any context). <leader>od got this fix
+      -- earlier via a manual vim.diagnostic.get() pull; oe/of/oR were missed — same gap.
+      vim.keymap.set('n',          '<leader>oe', function() return oc.operator('@nvim @this @diagnostics explain') end,      { expr = true, desc = 'Explain (operator)' })
+      vim.keymap.set('x',          '<leader>oe', function() oc.prompt('@nvim @this @diagnostics explain') end,               { desc = 'Explain selection' })
+      vim.keymap.set('n',          '<leader>of', function() return oc.operator('@nvim @this @diagnostics fix') end,          { expr = true, desc = 'Fix (operator)' })
+      vim.keymap.set('x',          '<leader>of', function() oc.prompt('@nvim @this @diagnostics fix') end,                   { desc = 'Fix selection' })
+      vim.keymap.set('n',          '<leader>oR', function() return oc.operator('@nvim @this @diagnostics review') end,       { expr = true, desc = 'Review (operator)' })
+      vim.keymap.set('x',          '<leader>oR', function() oc.prompt('@nvim @this @diagnostics review') end,                { desc = 'Review selection' })
       vim.keymap.set({ 'n', 'x' }, 'go',         function() return oc.operator('@this ') end,             { expr = true, desc = 'Append range to OpenCode' })
       vim.keymap.set('n',          'goo',         function() return oc.operator('@this ') .. '_' end,     { expr = true, desc = 'Append line to OpenCode' })
       vim.keymap.set('n',          '<S-C-u>',    function() oc.command('session.half.page.up') end,      { desc = 'Scroll OpenCode up' })

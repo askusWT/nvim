@@ -20,6 +20,7 @@ return {
           go         = { "gofumpt" },
           javascript = { "prettierd" },
           typescript = { "prettierd" },
+          markdown   = { "prettierd" },
           yaml       = { "yamlfmt" },
         },
         format_on_save = {
